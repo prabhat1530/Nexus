@@ -21,6 +21,10 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   const timerRef = useRef(null);
   const cleanedUpRef = useRef(false);
   const iceBuffer = useRef([]);
+  const ringtoneRef = useRef(null);
+
+  const RINGING_SOUND = 'https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3';
+  const INCOMING_SOUND = 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3';
 
   const isVoice = callType === 'voice';
 
@@ -34,6 +38,10 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  STOP ALL TRACKS — guaranteed to turn off camera LED
   // =====================================================
   const stopAllTracks = () => {
+    if (ringtoneRef.current) {
+      ringtoneRef.current.pause();
+      ringtoneRef.current = null;
+    }
     if (streamRef.current) {
       const tracks = streamRef.current.getTracks();
       for (let i = 0; i < tracks.length; i++) {
@@ -179,6 +187,12 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  CALLER: initiate a call
   // =====================================================
   const startCall = async () => {
+    // Start outgoing ringtone
+    const ringtone = new Audio(RINGING_SOUND);
+    ringtone.loop = true;
+    ringtone.play().catch(() => {});
+    ringtoneRef.current = ringtone;
+
     let customServers = null;
     try {
       const { data } = await getIceServers();
@@ -206,6 +220,13 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     // When the other person accepts our call
     socket.on('callAccepted', async (signal) => {
       if (cleanedUpRef.current) return;
+      
+      // Stop ringtone
+      if (ringtoneRef.current) {
+        ringtoneRef.current.pause();
+        ringtoneRef.current = null;
+      }
+
       setIsAccepted(true);
       await pc.setRemoteDescription(new RTCSessionDescription(signal));
       await flushIce(pc);
@@ -324,6 +345,11 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       if (!isIncoming) {
         startCall();
       } else {
+        // Start incoming ringtone
+        const ringtone = new Audio(INCOMING_SOUND);
+        ringtone.loop = true;
+        ringtone.play().catch(() => {});
+        ringtoneRef.current = ringtone;
         getMedia(); // pre-fetch while ringing
       }
     }, 150);
