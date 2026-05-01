@@ -23,9 +23,18 @@ export function NotificationProvider({ children }) {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
       });
-      return () => { socket.off('newNotification'); };
+
+      const handleReconnect = () => {
+        if (isAuthenticated) fetchUnreadCount();
+      };
+      window.addEventListener('socket-reconnected', handleReconnect);
+
+      return () => { 
+        socket.off('newNotification'); 
+        window.removeEventListener('socket-reconnected', handleReconnect);
+      };
     }
-  }, [socket]);
+  }, [socket, isAuthenticated]);
 
   const fetchUnreadCount = async () => {
     try {

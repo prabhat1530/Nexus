@@ -45,7 +45,12 @@ export default function Explore() {
       <div className="space-y-4">
         {loading ? Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />) :
           posts.length === 0 ? (
-            <div className="glass-card p-12 text-center"><p className="text-gray-500">No posts to explore yet.</p></div>
+            <div className="space-y-6">
+              <div className="glass-card p-12 text-center">
+                <p className="text-gray-500 mb-4">No posts to explore yet.</p>
+              </div>
+              <UserSuggestions />
+            </div>
           ) : posts.map((post) => <PostCard key={post.id} post={post} />)
         }
         {hasMore && <div ref={ref}><PostSkeleton /></div>}

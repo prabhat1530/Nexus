@@ -258,6 +258,12 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       }
     });
 
+    socket.on('userBusy', () => {
+      toast.error(`${otherUser.fullName} is currently in another call.`);
+      doCleanup();
+      onEnd();
+    });
+
     socket.on('iceCandidate', async (candidate) => {
       if (cleanedUpRef.current) return;
       if (pc.remoteDescription && pc.remoteDescription.type) {

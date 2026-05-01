@@ -106,8 +106,16 @@ const setupSocket = (io) => {
     socket.on('callUser', ({ recipientId, signalData, from, callerName, callType }) => {
       try {
         console.log(`📞 callUser: ${callerName} (${from}) → user ${recipientId} [${callType}]`);
+        
+        // CHECK IF BUSY
+        if (activeCalls.has(Number(recipientId))) {
+          console.log(`📞 User ${recipientId} is BUSY`);
+          return socket.emit('userBusy', { recipientId });
+        }
+
         const recipientSocketId = getRecipientSocketId(recipientId);
         if (recipientSocketId) {
+          activeCalls.set(Number(from), Number(recipientId));
           console.log(`📞 Sending incomingCall to socket ${recipientSocketId}`);
           io.to(recipientSocketId).emit('incomingCall', { 
             signal: signalData, 
@@ -161,6 +169,16 @@ const setupSocket = (io) => {
       try {
         console.log(`🔴 User disconnected: ${socket.userData.username} (${userId})`);
         activeUsers.delete(userId);
+        activeCalls.delete(userId);
+        // Also find if they were in a call and notify the other person
+        for (const [callerId, calleeId] of activeCalls.entries()) {
+          if (callerId === userId || calleeId === userId) {
+            const otherId = callerId === userId ? calleeId : callerId;
+            const otherSocketId = getRecipientSocketId(otherId);
+            if (otherSocketId) io.to(otherSocketId).emit('callEnded');
+            activeCalls.delete(callerId);
+          }
+        }
         await User.update({ isOnline: false, lastSeen: new Date() }, { where: { id: userId } });
         io.emit('userOffline', { userId, username: socket.userData.username });
       } catch (err) { console.error('disconnect error:', err); }

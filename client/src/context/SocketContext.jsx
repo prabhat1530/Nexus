@@ -34,8 +34,11 @@ export function SocketProvider({ children }) {
         setOnlineUsers((prev) => prev.filter((id) => id !== userId));
       });
 
-      newSocket.on('connect_error', (err) => {
-        console.error('Socket connection error:', err.message);
+      newSocket.on('reconnect', (attempt) => {
+        console.log(`🟢 Socket reconnected after ${attempt} attempts`);
+        // Trigger a global event or just log it for now
+        // Components can listen to 'socket' changes or explicit events
+        window.dispatchEvent(new CustomEvent('socket-reconnected'));
       });
 
       setSocket(newSocket);
