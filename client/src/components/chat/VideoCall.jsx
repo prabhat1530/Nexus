@@ -177,7 +177,11 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
 
     pc.oniceconnectionstatechange = () => {
       console.log('🧊 ICE State:', pc.iceConnectionState);
-      if (pc.iceConnectionState === 'failed') {
+      if (pc.iceConnectionState === 'disconnected') {
+        toast.error('Network unstable, trying to reconnect...', { id: 'rtc-status' });
+      } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+        toast.success('Connection stable', { id: 'rtc-status' });
+      } else if (pc.iceConnectionState === 'failed') {
         toast.error('Connection failed. Please check your network.');
         endCall();
       }
