@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { HiPhoneMissedCall, HiMicrophone, HiVideoCamera, HiPhone } from 'react-icons/hi';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
+import { getIceServers } from '../../services/chatService';
 import Avatar from '../common/Avatar';
 
 export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd, callType = 'video' }) {
@@ -132,9 +133,9 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   // =====================================================
   //  CREATE WEBRTC PEER CONNECTION
   // =====================================================
-  const createPC = (localStream) => {
+  const createPC = (localStream, customServers = null) => {
     const pc = new RTCPeerConnection({
-      iceServers: [
+      iceServers: customServers || [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
       ],
@@ -178,10 +179,18 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  CALLER: initiate a call
   // =====================================================
   const startCall = async () => {
+    let customServers = null;
+    try {
+      const { data } = await getIceServers();
+      customServers = data;
+    } catch (err) {
+      console.warn('⚠️ Could not fetch TURN servers, using public STUN only.');
+    }
+
     const stream = await getMedia();
     if (cleanedUpRef.current) return;
 
-    const pc = createPC(stream);
+    const pc = createPC(stream, customServers);
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
@@ -225,12 +234,20 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   const answerCall = async () => {
     setIsAccepted(true);
 
+    let customServers = null;
+    try {
+      const { data } = await getIceServers();
+      customServers = data;
+    } catch (err) {
+      console.warn('⚠️ Could not fetch TURN servers, using public STUN only.');
+    }
+
     // Get media if not already obtained
     let stream = streamRef.current;
     if (!stream) stream = await getMedia();
     if (cleanedUpRef.current) return;
 
-    const pc = createPC(stream);
+    const pc = createPC(stream, customServers);
 
     // Set caller's offer
     await pc.setRemoteDescription(new RTCSessionDescription(initialSignal));

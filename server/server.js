@@ -17,6 +17,7 @@ const postRoutes = require('./routes/posts');
 const messageRoutes = require('./routes/messages');
 const notificationRoutes = require('./routes/notifications');
 const storyRoutes = require('./routes/stories');
+const turnRoutes = require('./routes/turn');
 
 // Import models to setup associations
 require('./models');
@@ -56,6 +57,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/stories', storyRoutes);
+app.use('/api/turn', turnRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
