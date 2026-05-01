@@ -51,7 +51,7 @@ export default function Login() {
               <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} required value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="input-field pr-10" id="login-password" />
+                  onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="••••••••" className="input-field pr-10" id="login-password" autoComplete="current-password" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
                   {showPassword ? <HiEyeOff className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
