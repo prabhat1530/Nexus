@@ -90,24 +90,34 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     }
 
     iceBuffer.current = [];
-  };
-
-  // =====================================================
+  };  // =====================================================
   //  GET CAMERA/MIC
   // =====================================================
   const getMedia = async () => {
-    // Stop any existing stream first (prevents StrictMode double-grab)
     stopAllTracks();
-
     try {
-      if (!navigator.mediaDevices?.getUserMedia) return null;
+      if (!navigator.mediaDevices?.getUserMedia) {
+        toast.error('Your browser does not support video/audio calls.');
+        return null;
+      }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: !isVoice,
-      });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: !isVoice,
+        });
+      } catch (videoErr) {
+        if (!isVoice) {
+          console.warn('📹 Video permission denied or no camera found, falling back to audio only.');
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          setIsVideoOn(false);
+          toast.error('Could not access camera, switching to voice only.');
+        } else {
+          throw videoErr;
+        }
+      }
 
-      // If cleanup already ran while we were waiting for permission, stop immediately
       if (cleanedUpRef.current) {
         stream.getTracks().forEach(t => t.stop());
         return null;
@@ -115,28 +125,15 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
 
       streamRef.current = stream;
       setStreamReady(true);
-
-      // Attach to video element
-      if (localVideoEl.current) {
-        localVideoEl.current.srcObject = stream;
-      }
-
+      if (localVideoEl.current) localVideoEl.current.srcObject = stream;
       return stream;
     } catch (err) {
-      console.warn('⚠️ Camera/mic error:', err.message);
+      console.error('⚠️ Media access error:', err);
+      toast.error('Could not access microphone or camera. Please check permissions.');
+      endCall();
       return null;
     }
   };
-
-  // =====================================================
-  //  ATTACH LOCAL STREAM TO VIDEO ELEMENT
-  //  (handles React re-render timing)
-  // =====================================================
-  useEffect(() => {
-    if (streamReady && localVideoEl.current && streamRef.current) {
-      localVideoEl.current.srcObject = streamRef.current;
-    }
-  }, [streamReady]);
 
   // =====================================================
   //  CREATE WEBRTC PEER CONNECTION
@@ -147,26 +144,34 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
       ],
+      iceCandidatePoolSize: 10,
     });
     pcRef.current = pc;
 
-    // Add our tracks so the other person can see/hear us
     if (localStream) {
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
     }
 
-    // Receive remote tracks
     pc.ontrack = (event) => {
       const remoteStream = event.streams?.[0];
       if (remoteStream && remoteVideoEl.current) {
         remoteVideoEl.current.srcObject = remoteStream;
+        // Ensure audio plays by calling play() explicitly
+        remoteVideoEl.current.play().catch(e => console.warn('Autoplay prevented:', e));
       }
     };
 
-    // Send ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate && socket) {
         socket.emit('iceCandidate', { to: otherUser.id, candidate: event.candidate });
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log('🧊 ICE State:', pc.iceConnectionState);
+      if (pc.iceConnectionState === 'failed') {
+        toast.error('Connection failed. Please check your network.');
+        endCall();
       }
     };
 
@@ -179,7 +184,13 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   const flushIce = async (pc) => {
     const buffered = iceBuffer.current.splice(0);
     for (const c of buffered) {
-      try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+      try { 
+        if (c && pc.remoteDescription) {
+          await pc.addIceCandidate(new RTCIceCandidate(c)); 
+        }
+      } catch (e) {
+        console.warn('ICE add error:', e);
+      }
     }
   };
 
@@ -187,7 +198,6 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  CALLER: initiate a call
   // =====================================================
   const startCall = async () => {
-    // Start outgoing ringtone
     const ringtone = new Audio(RINGING_SOUND);
     ringtone.loop = true;
     ringtone.play().catch(() => {});
@@ -196,17 +206,19 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     let customServers = null;
     try {
       const { data } = await getIceServers();
-      customServers = data;
+      customServers = (data && Array.isArray(data)) ? data : null;
     } catch (err) {
-      console.warn('⚠️ Could not fetch TURN servers, using public STUN only.');
+      console.warn('⚠️ Could not fetch TURN servers.');
     }
 
     const stream = await getMedia();
-    if (cleanedUpRef.current) return;
+    if (cleanedUpRef.current || !stream) return;
 
     const pc = createPC(stream, customServers);
-
-    const offer = await pc.createOffer();
+    const offer = await pc.createOffer({
+      offerToReceiveAudio: true,
+      offerToReceiveVideo: !isVoice,
+    });
     await pc.setLocalDescription(offer);
 
     socket.emit('callUser', {
@@ -217,32 +229,30 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       callType,
     });
 
-    // When the other person accepts our call
     socket.on('callAccepted', async (signal) => {
       if (cleanedUpRef.current) return;
-      
-      // Stop ringtone
       if (ringtoneRef.current) {
         ringtoneRef.current.pause();
         ringtoneRef.current = null;
       }
-
       setIsAccepted(true);
-      await pc.setRemoteDescription(new RTCSessionDescription(signal));
-      await flushIce(pc);
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal));
+        await flushIce(pc);
+      } catch (e) {
+        console.error('Error setting remote description:', e);
+      }
     });
 
-    // Receive ICE candidates
     socket.on('iceCandidate', async (candidate) => {
       if (cleanedUpRef.current) return;
-      if (pc.remoteDescription) {
+      if (pc.remoteDescription && pc.remoteDescription.type) {
         try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch (e) {}
       } else {
         iceBuffer.current.push(candidate);
       }
     });
 
-    // Other person ended the call
     socket.on('callEnded', () => {
       doCleanup();
       onEnd();
@@ -253,43 +263,46 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  RECEIVER: accept an incoming call
   // =====================================================
   const answerCall = async () => {
+    if (ringtoneRef.current) {
+      ringtoneRef.current.pause();
+      ringtoneRef.current = null;
+    }
+    
     setIsAccepted(true);
-
     let customServers = null;
     try {
       const { data } = await getIceServers();
-      customServers = data;
+      customServers = (data && Array.isArray(data)) ? data : null;
     } catch (err) {
-      console.warn('⚠️ Could not fetch TURN servers, using public STUN only.');
+      console.warn('⚠️ Could not fetch TURN servers.');
     }
 
-    // Get media if not already obtained
     let stream = streamRef.current;
     if (!stream) stream = await getMedia();
-    if (cleanedUpRef.current) return;
+    if (cleanedUpRef.current || !stream) return;
 
     const pc = createPC(stream, customServers);
+    try {
+      await pc.setRemoteDescription(new RTCSessionDescription(initialSignal));
+      await flushIce(pc);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit('answerCall', { signal: answer, to: otherUser.id });
+    } catch (e) {
+      console.error('Error answering call:', e);
+      toast.error('Failed to connect call.');
+      endCall();
+    }
 
-    // Set caller's offer
-    await pc.setRemoteDescription(new RTCSessionDescription(initialSignal));
-    await flushIce(pc);
-
-    // Send our answer
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    socket.emit('answerCall', { signal: answer, to: otherUser.id });
-
-    // Receive ICE candidates
     socket.on('iceCandidate', async (candidate) => {
       if (cleanedUpRef.current) return;
-      if (pc.remoteDescription) {
+      if (pc.remoteDescription && pc.remoteDescription.type) {
         try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch (e) {}
       } else {
         iceBuffer.current.push(candidate);
       }
     });
 
-    // Caller ended
     socket.on('callEnded', () => {
       doCleanup();
       onEnd();
@@ -300,8 +313,6 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  END CALL
   // =====================================================
   const endCall = () => {
-    // Immediately stop camera before any async work
-    stopAllTracks();
     if (socket) socket.emit('endCall', { to: otherUser.id });
     doCleanup();
     onEnd();
@@ -315,9 +326,8 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     if (!s) return;
     const tracks = s.getAudioTracks();
     if (tracks.length > 0) {
-      const newState = !tracks[0].enabled;
-      tracks[0].enabled = newState;
-      setIsMicOn(newState);
+      tracks[0].enabled = !tracks[0].enabled;
+      setIsMicOn(tracks[0].enabled);
     }
   };
 
@@ -326,42 +336,30 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     if (!s) return;
     const tracks = s.getVideoTracks();
     if (tracks.length > 0) {
-      const newState = !tracks[0].enabled;
-      tracks[0].enabled = newState;
-      setIsVideoOn(newState);
+      tracks[0].enabled = !tracks[0].enabled;
+      setIsVideoOn(tracks[0].enabled);
     }
   };
 
   // =====================================================
   //  MOUNT / UNMOUNT
-  //  Uses a delay to prevent React StrictMode from
-  //  sending duplicate callUser events
   // =====================================================
   useEffect(() => {
     cleanedUpRef.current = false;
-
     const timeout = setTimeout(() => {
-      if (cleanedUpRef.current) return; // StrictMode unmounted us
+      if (cleanedUpRef.current) return;
       if (!isIncoming) {
         startCall();
       } else {
-        // Start incoming ringtone
         const ringtone = new Audio(INCOMING_SOUND);
         ringtone.loop = true;
         ringtone.play().catch(() => {});
         ringtoneRef.current = ringtone;
-        getMedia(); // pre-fetch while ringing
       }
     }, 150);
 
-    // UNMOUNT: guaranteed cleanup
     return () => {
       clearTimeout(timeout);
-      // Force stop tracks even if doCleanup already ran
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(t => { t.stop(); });
-        streamRef.current = null;
-      }
       doCleanup();
     };
   }, []);
@@ -382,20 +380,16 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       <div className="flex-1 relative flex items-center justify-center">
         <div className="relative w-full h-full lg:max-w-5xl lg:max-h-[80vh] lg:rounded-3xl bg-black overflow-hidden shadow-2xl border-white/5">
 
-          {/* REMOTE VIDEO — always in DOM so ref is never null */}
+          {/* REMOTE VIDEO / AUDIO */}
           <video
             ref={remoteVideoEl}
             autoPlay
             playsInline
-            style={{ display: isAccepted && !isVoice ? 'block' : 'none' }}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover ${(isVoice || !isAccepted) ? 'hidden' : 'block'}`}
           />
 
           {/* AVATAR / STATUS OVERLAY */}
-          <div
-            style={{ display: isAccepted && !isVoice ? 'none' : 'flex' }}
-            className="absolute inset-0 flex-col items-center justify-center space-y-6"
-          >
+          <div className={`absolute inset-0 flex flex-col items-center justify-center space-y-6 ${(isAccepted && !isVoice) ? 'hidden' : 'flex'}`}>
             {isVoice && isAccepted && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-40 h-40 rounded-full border-2 border-primary-500/20 animate-ping" />
@@ -423,14 +417,11 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
               )}
               <p className="text-gray-500 text-sm mt-2">{isVoice ? '🎤 Voice Call' : '📹 Video Call'}</p>
             </div>
-
-            {/* Hidden video for voice calls — still needs to play audio */}
-            {isVoice && <video ref={remoteVideoEl} autoPlay playsInline style={{ display: 'none' }} />}
           </div>
 
           {/* LOCAL VIDEO PIP */}
           {!isVoice && (
-            <div className="absolute top-6 right-6 w-32 sm:w-48 aspect-[3/4] bg-dark-300 rounded-2xl overflow-hidden shadow-xl border border-white/10 z-10">
+            <div className="absolute top-4 right-4 w-28 sm:w-48 aspect-[3/4] bg-dark-300 rounded-xl overflow-hidden shadow-xl border border-white/10 z-10">
               <video
                 ref={localVideoEl}
                 autoPlay
