@@ -104,8 +104,16 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: !isVoice,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          video: !isVoice ? {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30 }
+          } : false,
         });
       } catch (videoErr) {
         if (!isVoice) {
@@ -385,7 +393,7 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
             ref={remoteVideoEl}
             autoPlay
             playsInline
-            className={`absolute inset-0 w-full h-full object-cover ${(isVoice || !isAccepted) ? 'hidden' : 'block'}`}
+            className={`absolute inset-0 w-full h-full object-cover ${(!isAccepted || (isVoice && isAccepted)) ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
           />
 
           {/* AVATAR / STATUS OVERLAY */}
