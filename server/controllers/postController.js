@@ -5,14 +5,16 @@ const { sequelize } = require('../config/db');
 
 const createPost = async (req, res, next) => {
   try {
-    const content = req.body.content || '';
-    let image = req.body.image || null;
+    // With multer, text fields are in req.body
+    const content = req.body.content ? req.body.content.trim() : '';
+    let image = null;
+
     if (req.file) {
-      image = req.file.path; // Cloudinary returns the full URL in path
+      image = req.file.path; // Cloudinary URL
     }
 
     if (!content && !image) {
-      return res.status(400).json({ message: 'Post must have either content or an image.' });
+      return res.status(400).json({ message: 'Post must have either text or an image.' });
     }
 
     const post = await Post.create({ authorId: req.user.id, content, image });
