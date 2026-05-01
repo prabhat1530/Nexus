@@ -232,6 +232,7 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       offerToReceiveAudio: true,
       offerToReceiveVideo: !isVoice,
     });
+    offer.sdp = setMediaBitrate(offer.sdp, 500);
     await pc.setLocalDescription(offer);
 
     socket.emit('callUser', {
@@ -272,6 +273,31 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
     });
   };
 
+  // Helper to cap bitrate in SDP
+  const setMediaBitrate = (sdp, bitrate) => {
+    let lines = sdp.split('\n');
+    let lineIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf('m=video') === 0) {
+        lineIndex = i;
+        break;
+      }
+    }
+    if (lineIndex === -1) return sdp;
+    lineIndex++;
+    while (lines[lineIndex].indexOf('i=') === 0 || lines[lineIndex].indexOf('c=') === 0) {
+      lineIndex++;
+    }
+    if (lines[lineIndex].indexOf('b=AS') === 0) {
+      lines[lineIndex] = 'b=AS:' + bitrate;
+      return lines.join('\n');
+    }
+    let newLines = lines.slice(0, lineIndex);
+    newLines.push('b=AS:' + bitrate);
+    newLines = newLines.concat(lines.slice(lineIndex));
+    return newLines.join('\n');
+  };
+
   // =====================================================
   //  RECEIVER: accept an incoming call
   // =====================================================
@@ -299,6 +325,7 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
       await pc.setRemoteDescription(new RTCSessionDescription(initialSignal));
       await flushIce(pc);
       const answer = await pc.createAnswer();
+      answer.sdp = setMediaBitrate(answer.sdp, 500);
       await pc.setLocalDescription(answer);
       socket.emit('answerCall', { signal: answer, to: otherUser.id });
     } catch (e) {
