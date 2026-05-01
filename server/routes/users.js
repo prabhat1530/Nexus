@@ -7,7 +7,7 @@ router.get('/me', auth, getMe);
 router.get('/search', auth, searchUsers);
 router.get('/suggestions', auth, getSuggestions);
 router.get('/:id', auth, getUserById);
-router.put('/profile', auth, upload.single('avatar'), updateProfile);
+router.post('/profile', auth, upload.single('avatar'), updateProfile);
 router.put('/follow/:id', auth, toggleFollow);
 router.get('/:id/followers', auth, getFollowers);
 router.get('/:id/following', auth, getFollowing);

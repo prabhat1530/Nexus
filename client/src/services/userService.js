@@ -5,9 +5,9 @@ export const getUserById = (id) => api.get(`/users/${id}`);
 export const searchUsers = (q) => api.get(`/users/search?q=${q}`);
 export const updateProfile = (data) => {
   if (data instanceof FormData) {
-    return api.put('/users/profile', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post('/users/profile', data);
   }
-  return api.put('/users/profile', data);
+  return api.post('/users/profile', data);
 };
 export const toggleFollow = (id) => api.put(`/users/follow/${id}`);
 export const getFollowers = (id) => api.get(`/users/${id}/followers`);

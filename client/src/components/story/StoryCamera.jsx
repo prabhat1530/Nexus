@@ -5,13 +5,17 @@ import toast from 'react-hot-toast';
 export default function StoryCamera({ onCapture, onClose }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [stream, setStream] = useState(null);
+  const streamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     startCamera();
-    return () => stopCamera();
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
   }, []);
 
   const startCamera = async () => {
@@ -20,7 +24,7 @@ export default function StoryCamera({ onCapture, onClose }) {
         video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 1920 } }, 
         audio: false 
       });
-      setStream(s);
+      streamRef.current = s;
       if (videoRef.current) videoRef.current.srcObject = s;
     } catch (err) {
       toast.error('Could not access camera');
@@ -29,7 +33,10 @@ export default function StoryCamera({ onCapture, onClose }) {
   };
 
   const stopCamera = () => {
-    if (stream) stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
   };
 
   const capture = () => {

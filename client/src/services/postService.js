@@ -6,7 +6,7 @@ export const getPost = (id) => api.get(`/posts/${id}`);
 export const getUserPosts = (userId, page = 1) => api.get(`/posts/user/${userId}?page=${page}`);
 export const createPost = (data) => {
   if (data instanceof FormData) {
-    return api.post('/posts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post('/posts', data);
   }
   return api.post('/posts', data);
 };
