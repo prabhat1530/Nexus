@@ -8,11 +8,11 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="flex min-h-screen bg-dark-300">
+    <div className="flex min-h-screen min-h-[100dvh] bg-dark-300 overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
         <Navbar />
-        <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-6 pb-24 lg:pb-6 overflow-x-hidden">
+        <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-4 pb-20 lg:pb-6 overflow-y-auto overflow-x-hidden scrollbar-hide">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

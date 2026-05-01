@@ -11,6 +11,13 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     @apply bg-dark-300 text-gray-100 antialiased;
     min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
   }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { @apply bg-dark-300; }

@@ -60,13 +60,13 @@ export default function StoryViewer({ userGroup, onClose, onStoryDeleted }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[110] bg-dark-400/95 backdrop-blur-3xl flex items-center justify-center">
+    <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center min-h-[100dvh]">
       {/* Close Button */}
-      <button onClick={onClose} className="absolute top-6 right-6 p-2 text-white/50 hover:text-white transition-colors z-[120]">
+      <button onClick={onClose} className="absolute top-8 right-6 p-2 text-white/50 hover:text-white transition-colors z-[140]">
         <HiX className="w-8 h-8" />
       </button>
 
-      <div className="relative w-full max-w-lg aspect-[9/16] bg-black shadow-2xl rounded-3xl overflow-hidden group">
+      <div className="relative w-full h-full lg:max-w-lg lg:h-auto lg:aspect-[9/16] bg-black shadow-2xl lg:rounded-3xl overflow-hidden group">
         {/* Progress Bars */}
         <div className="absolute top-4 left-4 right-4 flex gap-1 z-[120]">
           {stories.map((_, i) => (

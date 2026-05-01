@@ -378,9 +378,9 @@ export default function VideoCall({ otherUser, isIncoming, initialSignal, onEnd,
   //  RENDER
   // =====================================================
   return (
-    <div className="fixed inset-0 z-[200] bg-dark-400/95 backdrop-blur-2xl flex flex-col">
-      <div className="flex-1 relative flex items-center justify-center p-4">
-        <div className="relative w-full h-full max-w-5xl bg-dark-400 rounded-3xl overflow-hidden shadow-2xl border border-white/5">
+    <div className="fixed inset-0 z-[200] bg-dark-400 flex flex-col min-h-[100dvh] safe-area-pb">
+      <div className="flex-1 relative flex items-center justify-center">
+        <div className="relative w-full h-full lg:max-w-5xl lg:max-h-[80vh] lg:rounded-3xl bg-black overflow-hidden shadow-2xl border-white/5">
 
           {/* REMOTE VIDEO — always in DOM so ref is never null */}
           <video

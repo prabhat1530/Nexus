@@ -90,7 +90,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full sm:w-auto">
+          <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
         </form>

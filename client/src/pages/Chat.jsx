@@ -46,7 +46,7 @@ export default function Chat() {
   if (loading) return <Spinner size="lg" />;
 
   return (
-    <div className="glass-card overflow-hidden -mx-4 lg:mx-0" style={{ height: 'calc(100vh - 140px)' }}>
+    <div className="glass-card overflow-hidden -mx-4 lg:mx-0" style={{ height: 'calc(100dvh - 160px)' }}>
       <div className="flex h-full">
         {/* Sidebar - always visible on desktop, hidden when chat is active on mobile */}
         <div className={`${activeConv ? 'hidden lg:flex' : 'flex'} w-full lg:w-80 flex-col border-r border-white/5`}>
