@@ -5,7 +5,7 @@ export default function Avatar({ src, name, size = 'md', isOnline, className = '
 
   return (
     <div className={`relative inline-flex shrink-0 ${className}`}>
-      {src ? (
+      {src && (src.startsWith('http') || src.startsWith('https') || src.startsWith('data:')) ? (
         <img src={src} alt={name} className={`${sizes[size]} rounded-full object-cover ring-2 ring-white/10`} />
       ) : (
         <div className={`${sizes[size]} rounded-full bg-gradient-to-br from-primary-500 to-accent-blue flex items-center justify-center font-semibold text-white ring-2 ring-white/10`}>
