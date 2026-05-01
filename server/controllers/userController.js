@@ -94,16 +94,14 @@ const searchUsers = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const { fullName, bio } = req.body;
-    let avatar = req.body.avatar;
     const user = await User.findByPk(req.user.id);
 
     if (req.file) {
-      avatar = req.file.path; // Cloudinary returns the full URL in path
+      user.avatar = req.file.path; // Cloudinary URL
     }
 
     if (fullName) user.fullName = fullName;
     if (bio !== undefined) user.bio = bio;
-    if (avatar !== undefined) user.avatar = avatar;
 
     await user.save();
 
