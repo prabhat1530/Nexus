@@ -3,6 +3,8 @@ const { User } = require('../models');
 
 // Active users map: userId -> socketId
 const activeUsers = new Map();
+// Active calls map: userId -> otherUserId (stored bidirectionally for fast lookup)
+const activeCalls = new Map();
 
 const getRecipientSocketId = (userId) => activeUsers.get(Number(userId));
 
@@ -107,15 +109,18 @@ const setupSocket = (io) => {
       try {
         console.log(`📞 callUser: ${callerName} (${from}) → user ${recipientId} [${callType}]`);
         
-        // CHECK IF BUSY
-        if (activeCalls.has(Number(recipientId))) {
-          console.log(`📞 User ${recipientId} is BUSY`);
+        // Check if caller or recipient is already busy
+        if (activeCalls.has(Number(from)) || activeCalls.has(Number(recipientId))) {
+          console.log(`📞 Busy condition: from=${activeCalls.has(Number(from))}, to=${activeCalls.has(Number(recipientId))}`);
           return socket.emit('userBusy', { recipientId });
         }
 
         const recipientSocketId = getRecipientSocketId(recipientId);
         if (recipientSocketId) {
+          // Mark both as busy immediately to prevent race conditions
           activeCalls.set(Number(from), Number(recipientId));
+          activeCalls.set(Number(recipientId), Number(from));
+          
           console.log(`📞 Sending incomingCall to socket ${recipientSocketId}`);
           io.to(recipientSocketId).emit('incomingCall', { 
             signal: signalData, 
@@ -153,13 +158,16 @@ const setupSocket = (io) => {
 
     socket.on('endCall', ({ to }) => {
       try {
-        console.log(`📞 endCall: user ${userId} ending call with user ${to}`);
-        const recipientSocketId = getRecipientSocketId(to);
+        const callerId = Number(userId);
+        const recipientId = Number(to);
+        console.log(`📞 endCall: user ${callerId} ending call with user ${recipientId}`);
+        
+        activeCalls.delete(callerId);
+        activeCalls.delete(recipientId);
+        
+        const recipientSocketId = getRecipientSocketId(recipientId);
         if (recipientSocketId) {
-          console.log(`📞 Sending callEnded to socket ${recipientSocketId}`);
           io.to(recipientSocketId).emit('callEnded');
-        } else {
-          console.log(`📞 endCall: user ${to} NOT FOUND in activeUsers`);
         }
       } catch (err) { console.error('endCall error:', err); }
     });
