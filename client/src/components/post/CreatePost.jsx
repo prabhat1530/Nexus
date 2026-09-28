@@ -95,7 +95,7 @@ export default function CreatePost({ onPostCreated }) {
                     whileTap={{ scale: 0.9 }}
                     type="button" 
                     onClick={removeFile}
-                    className="absolute top-2 right-2 p-1.5 bg-dark-400/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove photo" className="absolute top-2 right-2 flex h-11 w-11 items-center justify-center bg-dark-400/90 text-white rounded-full opacity-100 transition-opacity"
                   >
                     <HiX className="w-4 h-4" />
                   </motion.button>
@@ -109,14 +109,14 @@ export default function CreatePost({ onPostCreated }) {
           <motion.button 
             whileTap={{ scale: 0.95 }}
             type="button" onClick={() => fileInputRef.current?.click()}
-            className="btn-ghost flex items-center gap-2 text-sm text-primary-400">
+            className="btn-ghost flex min-h-11 items-center gap-2 text-sm text-primary-400">
             <HiPhotograph className="w-5 h-5" />
             <span>Photo</span>
           </motion.button>
           <motion.button 
             whileTap={{ scale: 0.95 }}
             type="submit" disabled={(!content.trim() && !file) || loading}
-            className="btn-primary text-sm px-6 py-2">
+            className="btn-primary min-h-11 text-sm px-6 py-2">
             {loading ? 'Posting...' : 'Post'}
           </motion.button>
         </div>

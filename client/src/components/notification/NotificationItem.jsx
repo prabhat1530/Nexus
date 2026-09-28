@@ -38,11 +38,11 @@ export default function NotificationItem({ notification, onRead }) {
           {messages[notification.type]}
         </p>
         {notification.post?.content && (
-          <p className="text-xs text-gray-500 mt-1 truncate">"{notification.post.content.slice(0, 80)}"</p>
+          <p className="text-xs text-gray-500 mt-1 truncate">&ldquo;{notification.post.content.slice(0, 80)}&rdquo;</p>
         )}
         <p className="text-xs text-gray-600 mt-1">{formatDate(notification.createdAt)}</p>
       </div>
-      {!notification.read && <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0" />}
+      {!notification.read && <button type="button" onClick={(event) => { event.stopPropagation(); onRead?.(notification.id); }} aria-label={`Mark notification from ${notification.sender?.fullName || 'a user'} as read`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl hover:bg-white/5"><span className="h-2.5 w-2.5 rounded-full bg-primary-500" /></button>}
     </div>
   );
 }

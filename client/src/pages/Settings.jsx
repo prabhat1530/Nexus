@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { updateProfile } from '../services/userService';
 import Avatar from '../components/common/Avatar';
 import toast from 'react-hot-toast';
-import { HiCog, HiUser, HiPhotograph, HiUpload } from 'react-icons/hi';
+import { HiCog, HiUser, HiUpload } from 'react-icons/hi';
 
 export default function Settings() {
   const { user, updateUser } = useAuth();
@@ -59,7 +59,7 @@ export default function Settings() {
             <div className="relative group">
               <Avatar src={preview || user?.avatar} name={form.fullName} size="xl" className="ring-4 ring-primary-500/20" />
               <button type="button" onClick={() => fileInputRef.current?.click()}
-                className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                aria-label="Change profile picture" className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity">
                 <HiUpload className="w-6 h-6" />
               </button>
             </div>
@@ -68,7 +68,7 @@ export default function Settings() {
               <p className="text-xs text-gray-500 mb-3">JPG, GIF or PNG. Max size of 5MB.</p>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
               <button type="button" onClick={() => fileInputRef.current?.click()}
-                className="btn-ghost text-xs text-primary-400 font-semibold px-4 py-2 bg-primary-500/10 hover:bg-primary-500/20 rounded-lg">
+                className="btn-ghost min-h-11 text-xs text-primary-400 font-semibold px-4 py-2 bg-primary-500/10 hover:bg-primary-500/20 rounded-lg">
                 Choose New File
               </button>
             </div>

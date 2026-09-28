@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserById } from '../services/userService';
 import { getUserPosts } from '../services/postService';
@@ -9,7 +9,7 @@ import FollowButton from '../components/user/FollowButton';
 import PostCard from '../components/post/PostCard';
 import PostSkeleton from '../components/post/PostSkeleton';
 import Spinner from '../components/common/Spinner';
-import { HiCalendar, HiVideoCamera } from 'react-icons/hi';
+import { HiVideoCamera } from 'react-icons/hi';
 
 export default function Profile() {
   const { id } = useParams();
@@ -18,29 +18,38 @@ export default function Profile() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(true);
+  const [profileError, setProfileError] = useState('');
+  const [postsError, setPostsError] = useState(false);
   const { user } = useAuth();
   const { isOnline } = useSocket();
   const isOwn = user?.id === parseInt(id);
 
-  useEffect(() => {
-    loadProfile();
-    loadPosts();
+  const loadProfile = useCallback(async () => {
+    setLoading(true);
+    setProfileError('');
+    try { const { data } = await getUserById(id); setProfile(data); }
+    catch (error) { setProfile(null); setProfileError(error.response?.status === 404 ? 'not-found' : 'unavailable'); }
+    finally { setLoading(false); }
   }, [id]);
 
-  const loadProfile = async () => {
-    setLoading(true);
-    try { const { data } = await getUserById(id); setProfile(data); } catch {}
-    setLoading(false);
-  };
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     setPostsLoading(true);
-    try { const { data } = await getUserPosts(id); setPosts(data.posts); } catch {}
-    setPostsLoading(false);
-  };
+    setPosts([]);
+    try { const { data } = await getUserPosts(id); setPosts(data.posts || []); setPostsError(false); }
+    catch { setPostsError(true); }
+    finally { setPostsLoading(false); }
+  }, [id]);
+
+  useEffect(() => { loadProfile(); loadPosts(); }, [loadProfile, loadPosts]);
 
   if (loading) return <Spinner size="lg" />;
-  if (!profile) return <div className="glass-card p-12 text-center text-gray-500">User not found</div>;
+  if (!profile) return (
+    <div className="glass-card p-10 text-center" role={profileError === 'unavailable' ? 'alert' : undefined}>
+      <h1 className="text-xl font-bold text-white">{profileError === 'not-found' ? 'User not found' : 'Profile unavailable'}</h1>
+      <p className="mt-2 text-sm text-gray-400">{profileError === 'not-found' ? 'This profile may have been removed.' : 'We could not load this profile. Check your connection and try again.'}</p>
+      {profileError !== 'not-found' && <button onClick={loadProfile} className="btn-primary mt-6 min-h-11">Try again</button>}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -51,22 +60,22 @@ export default function Profile() {
           <div className="absolute -right-8 -top-16 h-52 w-52 rounded-full border border-white/15" />
           <div className="absolute right-5 -top-9 h-36 w-36 rounded-full border border-white/10" />
         </div>
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 relative">
             <Avatar src={profile.avatar} name={profile.fullName} size="xl" isOnline={isOnline(profile.id)} className="ring-4 ring-dark-300" />
             <div className="flex-1 sm:mb-1">
               <h1 className="text-xl font-bold text-white">{profile.fullName}</h1>
               <p className="text-sm text-gray-500">@{profile.username}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {!isOwn && (
                 <>
-                  <button onClick={() => navigate(`/chat?user=${profile.id}&call=true`)}
-                    className="p-2.5 text-primary-400 bg-primary-500/10 rounded-xl border border-primary-500/20 hover:bg-primary-500/20 transition-all">
+                  <button aria-label={`Video call ${profile.fullName}`} onClick={() => navigate(`/chat?user=${profile.id}&call=true`)}
+                    className="flex h-11 w-11 items-center justify-center text-primary-400 bg-primary-500/10 rounded-xl border border-primary-500/20 hover:bg-primary-500/20 transition-all">
                     <HiVideoCamera className="w-5 h-5" />
                   </button>
                   <button onClick={() => navigate(`/chat?user=${profile.id}`)}
-                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-dark-200 border border-white/10 text-gray-300 hover:bg-dark-100 transition-all">
+                    className="min-h-11 px-5 py-2 text-sm font-semibold rounded-xl bg-dark-200 border border-white/10 text-gray-300 hover:bg-dark-100 transition-all">
                     Message
                   </button>
                   <FollowButton userId={profile.id} initialFollowing={profile.isFollowing} onToggle={() => loadProfile()} />
@@ -96,7 +105,9 @@ export default function Profile() {
       <div>
         <h2 className="text-sm font-semibold text-gray-400 mb-4">Posts</h2>
         <div className="space-y-4">
-          {postsLoading ? Array.from({ length: 2 }).map((_, i) => <PostSkeleton key={i} />) :
+          {postsLoading ? Array.from({ length: 2 }).map((_, i) => <PostSkeleton key={i} />) : postsError && posts.length === 0 ? (
+            <div className="glass-card p-8 text-center" role="alert"><p className="font-semibold text-white">Could not load posts</p><p className="mt-2 text-sm text-gray-400">Check your connection and try again.</p><button onClick={loadPosts} className="btn-secondary mt-5 min-h-11">Try again</button></div>
+          ) :
             posts.length === 0 ? (
               <div className="glass-card p-8 text-center text-gray-500 text-sm">No posts yet</div>
             ) : posts.map((post) => <PostCard key={post.id} post={post} onDelete={(id) => setPosts(prev => prev.filter(p => p.id !== id))} />)
