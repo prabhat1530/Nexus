@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { HiSparkles, HiEye, HiEyeOff } from 'react-icons/hi';
+import AuthShowcase from '../components/layout/AuthShowcase';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -19,24 +20,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-dark-400">
-        <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-primary-600/20 rounded-full blur-3xl animate-pulse-soft" />
-        <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-accent-blue/20 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-3xl" />
-      </div>
-
+    <div className="auth-scene grid min-h-screen min-h-[100dvh] lg:grid-cols-[1.1fr_0.9fr]">
+      <AuthShowcase />
+      <div className="relative flex items-center justify-center p-5 sm:p-8">
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 gradient-bg rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+            <div className="brand-mark w-12 h-12">
               <HiSparkles className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold gradient-text">Welcome to Nexus</h1>
-          <p className="text-gray-500 mt-2">Sign in to continue your journey</p>
+          <h1 className="text-3xl font-bold text-white">Welcome back</h1>
+          <p className="text-gray-400 mt-2">Sign in to your Nexus account</p>
         </div>
 
         {/* Form */}
@@ -65,13 +61,14 @@ export default function Login() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link to="/register" className="text-primary-400 hover:text-primary-300 font-semibold transition-colors">
                 Create one
               </Link>
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

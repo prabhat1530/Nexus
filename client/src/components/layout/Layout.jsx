@@ -8,7 +8,7 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] bg-dark-300 bg-[radial-gradient(circle_at_75%_0%,rgba(32,179,151,0.08),transparent_35%)] overflow-hidden">
+    <div className="app-shell flex min-h-screen min-h-[100dvh] overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
         <Navbar />

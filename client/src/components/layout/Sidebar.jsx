@@ -20,14 +20,14 @@ export default function Sidebar() {
   const { isOnline } = useSocket();
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-screen sticky top-0 border-r border-white/[0.07] bg-dark-400/80 backdrop-blur-xl">
+    <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-screen sticky top-0 border-r border-white/[0.08] bg-dark-500/75 shadow-[8px_0_35px_-25px_rgba(0,0,0,0.8)] backdrop-blur-xl">
       {/* Logo */}
       <div className="px-6 pt-8 pb-10">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 gradient-bg rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+          <div className="brand-mark w-10 h-10">
             <HiSparkles className="w-5 h-5 text-white" />
           </div>
-          <span className="text-2xl font-display font-bold tracking-tight text-white">nexus<span className="text-primary-400">.</span></span>
+          <span className="text-2xl font-display font-bold tracking-tight text-white">nexus<span className="text-accent-amber">.</span></span>
         </div>
       </div>
 

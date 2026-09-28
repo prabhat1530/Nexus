@@ -12,14 +12,14 @@ export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-dark-300/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-dark-400/80 shadow-[0_12px_30px_-25px_rgba(0,0,0,0.8)] backdrop-blur-xl">
       <div className="flex items-center justify-between h-[72px] px-4 sm:px-6 lg:px-8">
         {/* Mobile Logo */}
         <Link to="/" className="lg:hidden flex items-center gap-2">
-          <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+          <div className="brand-mark w-8 h-8 rounded-xl">
             <HiSparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-display font-bold tracking-tight text-white">nexus<span className="text-primary-400">.</span></span>
+          <span className="text-xl font-display font-bold tracking-tight text-white">nexus<span className="text-accent-amber">.</span></span>
         </Link>
 
         {/* Search Bar */}
