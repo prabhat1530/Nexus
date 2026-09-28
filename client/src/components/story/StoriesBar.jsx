@@ -11,7 +11,6 @@ export default function StoriesBar() {
   const [userStories, setUserStories] = useState([]);
   const [showCamera, setShowCamera] = useState(false);
   const [activeGroup, setActiveGroup] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -22,10 +21,9 @@ export default function StoriesBar() {
     try {
       const { data } = await getStories();
       setUserStories(data);
-    } catch (err) {
+    } catch {
       console.error('Failed to load stories');
     }
-    setLoading(false);
   };
 
   const handleCapture = async (file) => {
@@ -36,7 +34,7 @@ export default function StoriesBar() {
       toast.success('Story shared!');
       setShowCamera(false);
       loadStories();
-    } catch (err) {
+    } catch {
       toast.error('Failed to share story');
     }
   };
@@ -45,7 +43,7 @@ export default function StoriesBar() {
     <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
       {/* Create Story Button */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
-        <button onClick={() => setShowCamera(true)}
+        <button aria-label="Add your story" onClick={() => setShowCamera(true)}
           className="relative w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-primary-500 to-accent-blue transition-transform active:scale-95">
           <div className="w-full h-full rounded-full bg-dark-300 flex items-center justify-center p-0.5">
             <Avatar src={user?.avatar} name={user?.fullName} size="lg" className="w-full h-full" />
@@ -59,7 +57,7 @@ export default function StoriesBar() {
 
       {/* Stories List */}
       {userStories.map((group) => (
-        <div key={group.user.id} onClick={() => setActiveGroup(group)} 
+        <button key={group.user.id} type="button" aria-label={`View ${group.user.fullName}'s story`} onClick={() => setActiveGroup(group)}
           className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group">
           <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-primary-500 via-accent-purple to-accent-pink group-hover:scale-105 transition-transform">
             <div className="w-full h-full rounded-full bg-dark-300 p-0.5">
@@ -69,7 +67,7 @@ export default function StoriesBar() {
           <span className="text-[11px] font-medium text-gray-400 group-hover:text-white transition-colors truncate w-16 text-center">
             {group.user.id === user?.id ? 'You' : group.user.username}
           </span>
-        </div>
+        </button>
       ))}
 
       {showCamera && <StoryCamera onCapture={handleCapture} onClose={() => setShowCamera(false)} />}

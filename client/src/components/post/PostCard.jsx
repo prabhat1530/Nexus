@@ -10,20 +10,17 @@ import CommentSection from './CommentSection';
 import { formatDate } from '../../utils/formatDate';
 import toast from 'react-hot-toast';
 
-export default function PostCard({ post, onDelete, onUpdate }) {
+export default function PostCard({ post, onDelete }) {
   const [liked, setLiked] = useState(post.isLiked);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [commentsCount, setCommentsCount] = useState(post.commentsCount);
   const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [animateLike, setAnimateLike] = useState(false);
   const { user } = useAuth();
   const { socket, isOnline } = useSocket();
   const isAuthor = user?.id === post.author?.id;
 
   const handleLike = async () => {
-    setAnimateLike(true);
-    setTimeout(() => setAnimateLike(false), 500);
     const prev = liked;
     const previousLikesCount = likesCount;
     setLiked(!liked);
@@ -71,7 +68,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
         </Link>
         {isAuthor && (
           <div className="relative">
-            <button aria-label="Post options" onClick={() => setShowMenu(!showMenu)} className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+            <button aria-label="Post options" onClick={() => setShowMenu(!showMenu)} className="flex h-11 w-11 items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
               <HiDotsHorizontal className="w-4 h-4" />
             </button>
             {showMenu && (
@@ -85,7 +82,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-full mt-1 w-36 glass-card p-1 z-20"
                   >
-                    <button onClick={handleDelete} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-accent-rose hover:bg-accent-rose/10 rounded-lg transition-colors">
+                    <button onClick={handleDelete} className="w-full min-h-11 flex items-center gap-2 px-3 py-2 text-sm text-accent-rose hover:bg-accent-rose/10 rounded-lg transition-colors">
                       <HiTrash className="w-4 h-4" /> Delete
                     </button>
                   </motion.div>
@@ -111,7 +108,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
         <motion.button 
           whileTap={{ scale: 0.85 }}
           onClick={handleLike} 
-          className={`flex items-center gap-2 text-sm transition-all duration-200 group ${liked ? 'text-accent-rose' : 'text-gray-500 hover:text-accent-rose'}`}
+          aria-label={`${liked ? 'Unlike' : 'Like'} post, ${likesCount} likes`} className={`flex min-h-11 items-center gap-2 text-sm transition-all duration-200 group ${liked ? 'text-accent-rose' : 'text-gray-500 hover:text-accent-rose'}`}
         >
           {liked ? (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 10 }}>
@@ -125,7 +122,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={() => setShowComments(!showComments)} 
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-accent-blue transition-colors group"
+          aria-label={`${showComments ? 'Hide' : 'Show'} comments, ${commentsCount} comments`} className="flex min-h-11 items-center gap-2 text-sm text-gray-500 hover:text-accent-blue transition-colors group"
         >
           <HiChat className="w-5 h-5 group-hover:scale-110 transition-transform" />
           <span className="font-medium">{commentsCount}</span>
