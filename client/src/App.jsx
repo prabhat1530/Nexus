@@ -60,14 +60,14 @@ export default function App() {
               toastOptions={{
                 duration: 3000,
                 style: {
-                  background: '#1a1f2e',
-                  color: '#e2e8f0',
-                  border: '1px solid rgba(255,255,255,0.05)',
-                  borderRadius: '12px',
+                  background: '#1d2b40',
+                  color: '#eaf2f5',
+                  border: '1px solid rgba(255,255,255,0.09)',
+                  borderRadius: '16px',
                   backdropFilter: 'blur(20px)',
                 },
-                success: { iconTheme: { primary: '#8b5cf6', secondary: '#fff' } },
-                error: { iconTheme: { primary: '#f43f5e', secondary: '#fff' } },
+                success: { iconTheme: { primary: '#20b397', secondary: '#0e192a' } },
+                error: { iconTheme: { primary: '#ff758e', secondary: '#0e192a' } },
               }}
             />
           </NotificationProvider>

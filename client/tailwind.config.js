@@ -5,12 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: { 50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 300: '#d8b4fe', 400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8', 900: '#581c87' },
-        dark: { 50: '#f8fafc', 100: '#1c1c22', 200: '#16161b', 300: '#111115', 400: '#0c0c0f', 500: '#08080a', 600: '#050506', 700: '#030304', 800: '#010102', 900: '#000000' },
-        accent: { blue: '#3b82f6', cyan: '#22d3ee', emerald: '#10b981', rose: '#f43f5e', amber: '#f59e0b', neon: '#00f2fe' },
+        primary: { 50: '#edfcf9', 100: '#d4f7ef', 200: '#a9eadb', 300: '#76dbc6', 400: '#46c9ad', 500: '#20b397', 600: '#12947d', 700: '#107765', 800: '#115e52', 900: '#124e45' },
+        dark: { 50: '#33435b', 100: '#26364d', 200: '#1d2b40', 300: '#111e31', 400: '#0e192a', 500: '#0b1626', 600: '#091321', 700: '#07101c', 800: '#050b15', 900: '#03070e' },
+        accent: { blue: '#71aaff', cyan: '#60decf', emerald: '#24c79a', rose: '#ff758e', amber: '#f1bd6b', neon: '#67e0d0', purple: '#9c91ff', pink: '#ff8eb1' },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'DM Sans', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

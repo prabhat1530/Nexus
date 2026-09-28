@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiHome, HiChat, HiGlobe, HiBell, HiUser, HiCog, HiLogout, HiSparkles } from 'react-icons/hi';
+import { HiHome, HiChat, HiGlobe, HiBell, HiCog, HiLogout, HiSparkles, HiPlus } from 'react-icons/hi';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import Avatar from '../common/Avatar';
@@ -20,19 +20,20 @@ export default function Sidebar() {
   const { isOnline } = useSocket();
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 border-r border-white/5 bg-dark-300/80 backdrop-blur-xl">
+    <aside className="hidden lg:flex flex-col w-64 xl:w-72 h-screen sticky top-0 border-r border-white/[0.07] bg-dark-400/80 backdrop-blur-xl">
       {/* Logo */}
-      <div className="p-6">
+      <div className="px-6 pt-8 pb-10">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 gradient-bg rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20">
             <HiSparkles className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold gradient-text">Nexus</span>
+          <span className="text-2xl font-display font-bold tracking-tight text-white">nexus<span className="text-primary-400">.</span></span>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1">
+      <nav className="flex-1 px-4 space-y-1">
+        <p className="px-4 pb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-500">Your space</p>
         {navItems.map(({ path, icon: Icon, label, badge }, index) => (
           <motion.div
             key={path}
@@ -54,6 +55,12 @@ export default function Sidebar() {
           </motion.div>
         ))}
       </nav>
+
+      <div className="px-5 pb-5">
+        <NavLink to="/create" className="btn-primary flex w-full items-center justify-center gap-2 text-sm">
+          <HiPlus className="h-5 w-5" /> Create post
+        </NavLink>
+      </div>
 
       {/* User Profile */}
       {user && (
