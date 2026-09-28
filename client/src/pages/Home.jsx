@@ -56,12 +56,13 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl border border-primary-400/20 bg-[linear-gradient(120deg,#1c3b45,#17283b_70%)] p-6 sm:p-8">
-        <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full border border-primary-300/20" />
-        <div className="absolute -right-3 -top-10 h-36 w-36 rounded-full border border-primary-300/20" />
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-primary-300">Your community</p>
+      <div className="hero-panel">
+        <div className="hero-orbit -right-14 -top-20 h-56 w-56" />
+        <div className="hero-orbit -right-1 -top-8 h-40 w-40" />
+        <div className="absolute right-10 top-9 h-16 w-16 rotate-12 rounded-2xl border border-white/20 bg-white/10 shadow-[10px_12px_24px_-10px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] backdrop-blur-sm hidden sm:block" />
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-primary-200">Your community</p>
         <h1 className="relative text-3xl sm:text-4xl font-bold text-white">Welcome back{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}.</h1>
-        <p className="relative mt-2 max-w-md text-sm text-gray-300">A place to share what matters and catch up with your people.</p>
+        <p className="relative mt-2 max-w-md text-sm text-primary-50/75">A place to share what matters and catch up with your people.</p>
       </div>
       <StoriesBar />
       <CreatePost onPostCreated={handlePostCreated} />

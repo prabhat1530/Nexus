@@ -5,13 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: { 50: '#edfcf9', 100: '#d4f7ef', 200: '#a9eadb', 300: '#76dbc6', 400: '#46c9ad', 500: '#20b397', 600: '#12947d', 700: '#107765', 800: '#115e52', 900: '#124e45' },
-        dark: { 50: '#33435b', 100: '#26364d', 200: '#1d2b40', 300: '#111e31', 400: '#0e192a', 500: '#0b1626', 600: '#091321', 700: '#07101c', 800: '#050b15', 900: '#03070e' },
-        accent: { blue: '#71aaff', cyan: '#60decf', emerald: '#24c79a', rose: '#ff758e', amber: '#f1bd6b', neon: '#67e0d0', purple: '#9c91ff', pink: '#ff8eb1' },
+        primary: { 50: '#f0f3ff', 100: '#e0e6ff', 200: '#c5ceff', 300: '#a5b3ff', 400: '#8599ff', 500: '#6980f5', 600: '#5368da', 700: '#4354b2', 800: '#37458a', 900: '#303b6d' },
+        dark: { 50: '#46506a', 100: '#313b53', 200: '#252d43', 300: '#171e30', 400: '#121829', 500: '#0e1423', 600: '#0c1120', 700: '#090d19', 800: '#070a13', 900: '#05070d' },
+        accent: { blue: '#8ba8ff', cyan: '#80c9e8', emerald: '#47c6a4', rose: '#f286a3', amber: '#f4bd83', neon: '#a9b7ff', purple: '#b29dff', pink: '#f2a2c5' },
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Outfit', 'DM Sans', 'sans-serif'],
+        sans: ['Manrope', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Space Grotesk', 'Manrope', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

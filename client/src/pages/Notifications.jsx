@@ -45,14 +45,15 @@ export default function Notifications() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="hero-panel mb-6 flex items-center justify-between gap-3">
+        <div className="hero-orbit -right-12 -top-16 h-44 w-44" />
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+          <div className="brand-mark h-10 w-10 shrink-0">
             <HiBell className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-white">Notifications</h1>
+          <h1 className="text-2xl font-bold text-white">Notifications</h1>
         </div>
-        <button onClick={handleMarkAllRead} className="btn-ghost flex items-center gap-1.5 text-sm">
+        <button onClick={handleMarkAllRead} className="btn-secondary relative flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm">
           <HiCheck className="w-4 h-4" /> Mark all read
         </button>
       </div>

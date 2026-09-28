@@ -64,7 +64,7 @@ export default function CreatePost({ onPostCreated }) {
     <motion.div 
       animate={{ 
         scale: isFocused ? 1.01 : 1, 
-        boxShadow: isFocused ? '0 10px 40px -10px rgba(168, 85, 247, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+        boxShadow: isFocused ? '0 18px 45px -20px rgba(105, 128, 245, 0.38)' : '0 16px 35px -22px rgba(1, 4, 18, 0.9)'
       }}
       transition={{ duration: 0.3 }}
       className="glass-card p-5 mb-6 border border-white/5"

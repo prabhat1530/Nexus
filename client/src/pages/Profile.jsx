@@ -47,8 +47,9 @@ export default function Profile() {
       {/* Profile Header */}
       <div className="glass-card overflow-hidden">
         {/* Banner */}
-        <div className="h-32 bg-gradient-to-r from-primary-600/40 via-accent-blue/30 to-accent-cyan/40 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_50%,rgba(0,0,0,0.4))]" />
+        <div className="h-36 relative overflow-hidden bg-[radial-gradient(circle_at_75%_5%,rgba(169,183,255,0.45),transparent_34%),linear-gradient(125deg,#394a85,#27345c_60%,#222b45)]">
+          <div className="absolute -right-8 -top-16 h-52 w-52 rounded-full border border-white/15" />
+          <div className="absolute right-5 -top-9 h-36 w-36 rounded-full border border-white/10" />
         </div>
         <div className="px-6 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 relative">

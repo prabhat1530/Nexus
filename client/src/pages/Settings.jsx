@@ -44,17 +44,18 @@ export default function Settings() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+      <div className="hero-panel mb-6 flex items-center gap-3">
+        <div className="hero-orbit -right-12 -top-16 h-44 w-44" />
+        <div className="brand-mark h-10 w-10 shrink-0">
           <HiCog className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-xl font-bold text-white">Settings</h1>
+        <div><h1 className="text-2xl font-bold text-white">Settings</h1><p className="text-sm text-primary-50/75">Make this space your own.</p></div>
       </div>
 
       <div className="glass-card p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Avatar Section */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-2xl bg-dark-200/30 border border-white/5">
+          <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-2xl bg-dark-500/30 border border-white/10 shadow-inner">
             <div className="relative group">
               <Avatar src={preview || user?.avatar} name={form.fullName} size="xl" className="ring-4 ring-primary-500/20" />
               <button type="button" onClick={() => fileInputRef.current?.click()}

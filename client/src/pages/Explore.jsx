@@ -38,8 +38,9 @@ export default function Explore() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-8 rounded-3xl border border-white/[0.08] bg-dark-200/60 p-6">
-        <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+      <div className="hero-panel mb-8 flex items-center gap-4">
+        <div className="hero-orbit -right-8 -top-14 h-44 w-44" />
+        <div className="brand-mark h-11 w-11 shrink-0">
           <HiGlobe className="w-5 h-5 text-white" />
         </div>
         <div>
