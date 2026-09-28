@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiHeart, HiOutlineHeart, HiChat, HiDotsHorizontal, HiTrash, HiPencil } from 'react-icons/hi';
+import { HiHeart, HiOutlineHeart, HiChat, HiDotsHorizontal, HiTrash } from 'react-icons/hi';
 import { toggleLike, deletePost } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
@@ -25,6 +25,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
     setAnimateLike(true);
     setTimeout(() => setAnimateLike(false), 500);
     const prev = liked;
+    const previousLikesCount = likesCount;
     setLiked(!liked);
     setLikesCount((c) => (liked ? c - 1 : c + 1));
     try {
@@ -37,7 +38,8 @@ export default function PostCard({ post, onDelete, onUpdate }) {
       }
     } catch {
       setLiked(prev);
-      setLikesCount((c) => (prev ? c : c - 1));
+      setLikesCount(previousLikesCount);
+      toast.error('Could not update like');
     }
   };
 
@@ -56,7 +58,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="glass-card-hover p-5"
+      className="glass-card-hover p-5 sm:p-6"
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -69,7 +71,7 @@ export default function PostCard({ post, onDelete, onUpdate }) {
         </Link>
         {isAuthor && (
           <div className="relative">
-            <button onClick={() => setShowMenu(!showMenu)} className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+            <button aria-label="Post options" onClick={() => setShowMenu(!showMenu)} className="p-1.5 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
               <HiDotsHorizontal className="w-4 h-4" />
             </button>
             {showMenu && (
@@ -99,8 +101,8 @@ export default function PostCard({ post, onDelete, onUpdate }) {
 
       {/* Image */}
       {post.image && (
-        <div className="mt-3 rounded-xl overflow-hidden">
-          <img src={post.image} alt="Post" className="w-full max-h-96 object-cover hover:scale-[1.02] transition-transform duration-500" />
+        <div className="mt-4 rounded-2xl overflow-hidden border border-white/[0.06]">
+          <img src={post.image} alt="Post attachment" className="w-full max-h-[480px] object-cover" />
         </div>
       )}
 
